@@ -6,6 +6,7 @@
 Timer timerSend;
 RadioPacket *frame = nullptr;
 uint32_t txCount = 0;
+struct timeval tTxStart, tTxStarted;
 
 static void prepareLoRa2GHzFrame(LoRa2GHzFrame *f) {
 #if 0
@@ -22,7 +23,7 @@ static void prepareLoRa2GHzFrame(LoRa2GHzFrame *f) {
 }
 
 static void prepareFLRCFrame(FLRCFrame *f) {
-#if 0
+#if 1
   f->br = FLRCFrame::BR_UNSPECIFIED; //To use current settings.
 #else
   f->br = FLRCFrame::BR_260_BW_300;
@@ -38,6 +39,9 @@ static void prepareFLRCFrame(FLRCFrame *f) {
 
 void setup() {
   Serial.begin(115200);
+  pinMode(GPIO3, OUTPUT);
+  digitalWrite(GPIO3, LOW);
+
   printf("\n*** [PLM120] SX1280 Tx ***\n");
 
   error_t err = SX1280.begin();
@@ -48,7 +52,7 @@ void setup() {
   SX1280.setLoRaMode(LoRa2GHzFrame::SF12, LoRa2GHzFrame::BW_400kHz, LoRa2GHzFrame::CR_4_5);
 #elif defined TEST_FLRC
   SX1280.setFLRCMode(
-    FLRCFrame::BR_260_BW_300,   //bitrate
+    FLRCFrame::BR_1300_BW_1200, //bitrate
     FLRCFrame::CR_1_2,          //coding rate
     FLRCFrame::BT_1_0,          //modulation shaping
     32,                         //preamble length (byte)
@@ -74,14 +78,14 @@ void setup() {
     // printf("* len:%u\n", frame->len);
 
 #if 0
-    frame = new RadioPacket(4);
+    frame = new RadioPacket(6);
 #else
 
 #ifdef TEST_LORA
-    frame = new LoRa2GHzFrame(4);
+    frame = new LoRa2GHzFrame(6);
     prepareLoRa2GHzFrame((LoRa2GHzFrame *) frame);
 #elif defined TEST_FLRC
-    frame = new FLRCFrame(6);
+    frame = new FLRCFrame(127);
     prepareFLRCFrame((FLRCFrame *) frame);
 #endif
 
@@ -95,18 +99,42 @@ void setup() {
     frame->buf[5] = 0;
     txCount++;
 
+    gettimeofday(&tTxStart, nullptr);
     error_t err = SX1280.transmit(frame);
+    gettimeofday(&tTxStarted, nullptr);
+
     if (err != ERROR_SUCCESS) {
       printf("* Error:%d\n", err);
       delete frame;
       frame = nullptr;
+    } else {
+      digitalWrite(GPIO3, HIGH);
+
+      struct timeval tDiff;
+      timersub(&tTxStarted, &tTxStart, &tDiff);
+
+      printf(
+        "[%lu.%06lu] Tx started (d:%lu.%06lu)\n",
+        tTxStarted.tv_sec, tTxStarted.tv_usec, tDiff.tv_sec, tDiff.tv_usec
+      );
     }
   }, nullptr);
   timerSend.startPeriodic(1000);
 
-  SX1280.onTxDone([](void *, bool success) {
-    printf("* Tx done: %s\n", (success) ? "success" : "fail");
+  SX1280.onTxDone = [](void *, bool success, GPIOInterruptInfo_t *intrInfo) {
+    digitalWrite(GPIO3, LOW);
+
+    struct timeval tDiff;
+    timersub(&intrInfo->timeEnteredISR, &tTxStarted, &tDiff);
+
+    printf(
+      "[%lu.%06lu] Tx done: %s (duration: %lu.%06lu)\n",
+      intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
+      (success) ? "success" : "fail",
+      tDiff.tv_sec, tDiff.tv_usec
+    );
+
     delete frame;
     frame = nullptr;
-  }, nullptr);
+  };
 }

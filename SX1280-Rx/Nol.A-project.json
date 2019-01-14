@@ -1,4 +1,4 @@
 {
  "board": "plm120",
- "options": "NOLA_DEBUG_SX1280=1"
+ "options": "NOLA_DEBUG_SX1280=0"
 }
