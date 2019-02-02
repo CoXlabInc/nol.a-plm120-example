@@ -73,12 +73,12 @@ void setup() {
     timersub(&now, &intrInfo->timeEnteredISR, &tDiff);
     tRxStarted = intrInfo->timeEnteredISR;
 
-    printf(
-      "* [%lu.%06lu] Rx started at %lu.%06lu (d:%lu.%06lu)\n",
-      now.tv_sec, now.tv_usec,
-      intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
-      tDiff.tv_sec, tDiff.tv_usec
-    );
+    // printf(
+    //   "* [%lu.%06lu] Rx started at %lu.%06lu (d:%lu.%06lu)\n",
+    //   now.tv_sec, now.tv_usec,
+    //   intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
+    //   tDiff.tv_sec, tDiff.tv_usec
+    // );
   };
 
   SX1280.onRxDone = [](void *, GPIOInterruptInfo_t *intrInfo) {
@@ -88,12 +88,12 @@ void setup() {
     timersub(&now, &intrInfo->timeEnteredISR, &tDiff);
     timersub(&intrInfo->timeEnteredISR, &tRxStarted, &tDuration);
 
-    printf(
-      "* [%lu.%06lu] Rx done at %lu.%06lu (d:%lu.%06lu) => duration:%lu.%06lu\n",
-      now.tv_sec, now.tv_usec,
-      intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
-      tDiff.tv_sec, tDiff.tv_usec, tDuration.tv_sec, tDuration.tv_usec
-    );
+    // printf(
+    //   "* [%lu.%06lu] Rx done at %lu.%06lu (d:%lu.%06lu) => duration:%lu.%06lu\n",
+    //   now.tv_sec, now.tv_usec,
+    //   intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
+    //   tDiff.tv_sec, tDiff.tv_usec, tDuration.tv_sec, tDuration.tv_usec
+    // );
 
     Radio::Modulation_t mod = SX1280.getCurrentModulation();
     RadioPacket *frame = nullptr;
@@ -152,5 +152,5 @@ void setup() {
     }
   };
 
-  postTask(taskMeasureRssi);
+  // postTask(taskMeasureRssi);
 }
