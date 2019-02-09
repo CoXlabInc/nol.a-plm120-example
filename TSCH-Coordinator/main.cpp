@@ -42,6 +42,25 @@ void setup() {
   });
 
   tsch->onReceive([](TSCHMac &, const IEEE802_15_4Frame *frame) {
+    printf("- Received a frame(%p) from ", frame);
+    IEEE802_15_4Address src = frame->getSrcAddr();
+    if (src.len == 2) {
+      printf("0x%04X\n", src.id.s16);
+    } else if (src.len == 8) {
+      printf(
+        "%02X-%02X-%02X-%02X-%02X-%02X-%02X-%02X\n",
+        src.id.s64[0], src.id.s64[1], src.id.s64[2], src.id.s64[3],
+        src.id.s64[4], src.id.s64[5], src.id.s64[6], src.id.s64[7]
+      );
+    } else {
+      printf("(unknown address length:%u)\n", src.len);
+    }
+    printf(" ");
+    for (uint16_t i = 0; i < frame->getPayloadLength(); i++) {
+      printf(" %02X", frame->getPayloadAt(i));
+    }
+    printf(" (%u byte)\n", frame->getPayloadLength());
+    printf("  RSSI:%d\n", frame->power);
   });
 
   err = tsch->setSlotframe(20);
