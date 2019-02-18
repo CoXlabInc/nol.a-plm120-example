@@ -54,7 +54,10 @@ void setup() {
       | ((uint32_t) frame->getPayloadAt(2) << 16)
       | ((uint32_t) frame->getPayloadAt(3) << 24)
     );
-    printf("- Send result:%d, seq:0x%08lX, # of Tx:%u\n", frame->result, sentSeq, frame->txCount);
+    printf(
+      "- Send result:%d, seq:0x%08lX, # of Tx:%u, RSSI:%d\n",
+      frame->result, sentSeq, frame->txCount, frame->power
+    );
     delete frame;
   });
 
