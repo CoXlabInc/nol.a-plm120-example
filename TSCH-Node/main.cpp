@@ -9,12 +9,12 @@ void setup() {
   Serial.begin(115200);
 
   printf("\n*** [PLM120] IEEE 802.15.4 TSCH Node ***\n");
-  printf("* Reset: 0x%08lx\n", System.getResetReason());
+  printf("- Reset: 0x%08lx\n", System.getResetReason());
   if (System.getResetReason() & (1ul << 1)) {
     const McuNRF51::StackDump *last = System.getLastStackDump();
-    printf("* Watchdog reset. Check the last stack dump:\n");
-    printf(" - R0: 0x%08lx, R1: 0x%08lx, R2: 0x%08lx, R3: 0x%08lx\n", last->r0, last->r1, last->r2, last->r3);
-    printf(" - R12: 0x%08lx, LR: 0x%08lx, PC: 0x%08lx, PSR: 0x%08lx\n", last->r12, last->lr, last->pc, last->psr);
+    printf("  Watchdog reset. Check the last stack dump:\n");
+    printf("  R0: 0x%08lx, R1: 0x%08lx, R2: 0x%08lx, R3: 0x%08lx\n", last->r0, last->r1, last->r2, last->r3);
+    printf("  R12: 0x%08lx, LR: 0x%08lx, PC: 0x%08lx, PSR: 0x%08lx\n", last->r12, last->lr, last->pc, last->psr);
   }
 
   tsch = TSCHMac::Create();
@@ -54,7 +54,7 @@ void setup() {
       | ((uint32_t) frame->getPayloadAt(2) << 16)
       | ((uint32_t) frame->getPayloadAt(3) << 24)
     );
-    printf("- Send result:%d, seq:%08lX\n", frame->result, sentSeq);
+    printf("- Send result:%d, seq:0x%08lX, # of Tx:%u\n", frame->result, sentSeq, frame->txCount);
     delete frame;
   });
 
@@ -71,7 +71,7 @@ void setup() {
   static Timer timerSend;
   timerSend.onFired([](void *) {
     if (tsch->isWorking()) {
-      IEEE802_15_4Frame *f = new IEEE802_15_4Frame(90);
+      IEEE802_15_4Frame *f = new IEEE802_15_4Frame(4);
       if (!f) {
         printf("- Not enough memory\n");
         return;
@@ -95,7 +95,7 @@ void setup() {
       }
     } else {
       error_t err = tsch->sendEnhancedBeaconRequest();
-      printf("- Send EBR! (%d)", err);
+      printf("- Send EBR! (%d)\n", err);
     }
   }, nullptr);
   timerSend.startPeriodic(5000);

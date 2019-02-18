@@ -91,7 +91,7 @@ void setup() {
   static Timer timerBeacon;
   timerBeacon.onFired([](void *) {
     error_t err = tsch->sendEnhancedBeacon();
-    printf("Send EB! (%d)", err);
+    printf("Send EB! (%d)\n", err);
   }, nullptr);
   timerBeacon.startPeriodic(10000);
 
