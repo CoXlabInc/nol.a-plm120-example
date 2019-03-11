@@ -33,7 +33,7 @@ void setup() {
   tsch->begin(SX1280, 0x0001, 0x0001, nullptr, true);
   // tsch->setHoppingSequence(
   //   0, //macHoppingSequenceID
-  //   sizeof(tsch->HoppingSequenceList2450MHz),
+  //   sizeof(tsch->HoppingSequenceList2450MHz) / sizeof(uint16_t),
   //   tsch->HoppingSequenceList2450MHz,
   //   tsch->ConvertChToFreq2450MHz
   // );
