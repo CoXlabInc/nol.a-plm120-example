@@ -115,7 +115,7 @@ void setup() {
 
       printf(
         "[%lu.%06lu] Tx started (d:%lu.%06lu)\n",
-        tTxStarted.tv_sec, tTxStarted.tv_usec, tDiff.tv_sec, tDiff.tv_usec
+        (uint32_t) tTxStarted.tv_sec, tTxStarted.tv_usec, (uint32_t) tDiff.tv_sec, tDiff.tv_usec
       );
     }
   }, nullptr);
@@ -129,9 +129,9 @@ void setup() {
 
     printf(
       "[%lu.%06lu] Tx done: %s (duration: %lu.%06lu)\n",
-      intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
+      (uint32_t) intrInfo->timeEnteredISR.tv_sec, intrInfo->timeEnteredISR.tv_usec,
       (success) ? "success" : "fail",
-      tDiff.tv_sec, tDiff.tv_usec
+      (uint32_t) tDiff.tv_sec, tDiff.tv_usec
     );
 
     delete frame;
