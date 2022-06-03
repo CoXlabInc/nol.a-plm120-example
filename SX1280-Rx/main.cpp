@@ -36,7 +36,7 @@ void setup() {
   printf("\n*** [PLM120] SX1280 Rx ***\n");
   printf("* Reset: 0x%08lx\n", System.getResetReason());
   if (System.getResetReason() & (1ul << 1)) {
-    const McuNRF51::StackDump *last = System.getLastStackDump();
+    const McuARMCortexM::CoreRegisterDump *last = System.getLastCoreRegisterDump();
     printf("* Watchdog reset. Check the last stack dump:\n");
     printf(" - R0: 0x%08lx, R1: 0x%08lx, R2: 0x%08lx, R3: 0x%08lx\n", last->r0, last->r1, last->r2, last->r3);
     printf(" - R12: 0x%08lx, LR: 0x%08lx, PC: 0x%08lx, PSR: 0x%08lx\n", last->r12, last->lr, last->pc, last->psr);
